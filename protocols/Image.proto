@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package protocols;
+
+service Image {
+   rpc ProcessingImage (ProcessingImageRequest) returns (ProcessingImageResponse) {}
+   rpc SetupConfiguration(SetupConfigurationRequest) returns (SetupConfigurationResponse) {}
+   rpc GetImageListPath (ImageListPathRequest) returns (ImageListPathResponse) {}
+}
+
+message ProcessingImageRequest {
+    string name = 1;
+    string base64string = 2;
+    string imagename = 3;
+    string prefixpath = 4;
+}
+
+message ImageListPathRequest {
+    string name = 1;
+    string prefixpath = 2;
+    string filename = 3;
+}
+
+message ImageListPathResponse{
+    string bucketname = 1;
+    repeated ListPath images = 2;
+}
+
+message ListPath {
+    string name  = 1;
+    string url = 2;
+}
+
+message ProcessingImageResponse {
+    int32 status = 1;
+}
+
+
+message SetupConfigurationRequest {
+    GlobalConfig config = 1;
+    repeated ImageProcessingConfiguration imageprocessingconfiguration = 2;
+}
+
+message GlobalConfig {
+    string bucketname = 1;
+}
+
+
+message ImageProcessingConfiguration {
+    string name = 1;
+    repeated ImageConfig imageconfigs = 2;
+}
+
+message ImageConfig {
+    string type = 1;
+    string name = 2;
+    int32 height = 3;
+    int32 width  = 4;
+}
+
+message SetupConfigurationResponse {
+
+}
