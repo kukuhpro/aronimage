@@ -18,15 +18,15 @@ type Config struct {
 }
 
 type Path struct {
-	Name         string
-	ImageProcess []ImageProcess
+	Name         string         `json:"name"`
+	ImageProcess []ImageProcess `json:"image_process"`
 }
 
 type ImageProcess struct {
-	Type       string
-	PrefixPath string
-	Height     string
-	Width      string
+	Type       string `json:"type"`
+	PrefixPath string `json:"prefix_path"`
+	Height     int    `json:"height"`
+	Width      int    `json:"width"`
 }
 
 type ImageLabel struct {

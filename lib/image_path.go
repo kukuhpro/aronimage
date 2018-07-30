@@ -11,6 +11,12 @@ type ImagePath struct {
 	ListOfPath map[string]Path
 }
 
+func (i *ImagePath) LoopKeys(closure func(key string)) {
+	for key, _ := range i.ListOfPath {
+		closure(key)
+	}
+}
+
 func (i *ImagePath) GetPath(key string) Path {
 	return i.ListOfPath[key]
 }
