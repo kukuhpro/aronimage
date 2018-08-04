@@ -29,6 +29,10 @@ type ImageProcess struct {
 	Width      int    `json:"width"`
 }
 
+func (ip *ImageProcess) generatePrefixPath(prefixPath, moduleName string) string {
+	return prefixPath + "/" + moduleName + "/" + ip.PrefixPath
+}
+
 type ImageLabel struct {
 	Name      string
 	Extension string

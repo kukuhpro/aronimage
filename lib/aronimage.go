@@ -25,20 +25,32 @@ func (ai *Aronimage) setupStorage() {
 	ai.Storage = storage.NewStorage(configs3)
 }
 
+
+/** 
+ * Upload Original Image on AWS S3 first
+ * @return void
+*/
 func (ai *Aronimage) uploadOriginal() {
 	ai.Storage.Put(ai.PrefixPath+"/"+ai.ModuleName+"/original", ai.Image.Name, ai.Image.Bytes)
 }
 
+
+/** 
+ * Processing image for handle manipulation 
+ * @return void
+*/
 func (ai *Aronimage) ProcessImage() {
 	// upload first for original image
 	ai.uploadOriginal()
 
 	// processing other image send to queue job worker.
 	payload := &ImageWorker{
+		PrefixPath: ai.PrefixPath,
 		Storage:    ai.Storage,
 		Path:       ai.Path,
 		ModuleName: ai.ModuleName,
-		ImageManipulation: NewImageManipulation()
+		ImageManipulation: NewImageManipulation(),
+		Image: ai.Image
 	}
 	work := qasirworker.Job{Executor: payload}
 	qasirworker.JobQueue <- work
