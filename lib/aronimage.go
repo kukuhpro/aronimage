@@ -38,6 +38,7 @@ func (ai *Aronimage) ProcessImage() {
 		Storage:    ai.Storage,
 		Path:       ai.Path,
 		ModuleName: ai.ModuleName,
+		ImageManipulation: NewImageManipulation()
 	}
 	work := qasirworker.Job{Executor: payload}
 	qasirworker.JobQueue <- work

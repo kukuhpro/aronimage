@@ -5,15 +5,20 @@ import (
 )
 
 type ImageWorker struct {
-	ModuleName string
-	Storage    storage.StorageInterface
-	Image      ImageLabel
-	Path       ImagePathInterface
+	ModuleName        string
+	Storage           storage.StorageInterface
+	Image             ImageLabel
+	Path              ImagePathInterface
+	ImageManipulation *ImageManipulation
 }
 
 func (iw *ImageWorker) processingImage(image ImageProcess) error {
+	// set bytes original image
+	iw.ImageManipulation.SetBytes(iw.Image.Bytes)
 	switch image.Type {
 	case "resize":
+
+	case "thumbnail":
 
 	}
 }
