@@ -1,7 +1,7 @@
 package core
 
 type response struct {
-	Status  uint                   `json:"status"`
+	Status  int                    `json:"status"`
 	Message string                 `json:"message"`
 	Token   map[string]interface{} `json:"token"`
 	Data    map[string]interface{} `json:"data"`
@@ -14,7 +14,7 @@ type ApiResponse struct {
 	token   map[string]interface{}
 }
 
-func (api *ApiResponse) SetStatus(status uint) {
+func (api *ApiResponse) SetStatus(status int) {
 	api.status = status
 }
 

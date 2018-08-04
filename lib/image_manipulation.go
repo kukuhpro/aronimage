@@ -29,14 +29,14 @@ func (ia *ImageManipulation) SetImageProcess(imageProcess ImageProcess) {
  * Processing image resize on original image bytes
  * @return []byte
  */
-func (ia *ImageManipulation) Resize() []byte, error {
+func (ia *ImageManipulation) Resize() ([]byte, error) {
 	var imageResize []byte
 
 	newImage, err := bimg.NewImage(ia.bytesImage).Resize(ia.imageProcess.Width, ia.imageProcess.Height)
 
 	if err != nil {
 		return nil, err
-	}	
+	}
 
 	imageResize = newImage
 
@@ -47,7 +47,7 @@ func (ia *ImageManipulation) Resize() []byte, error {
  * Processing Image thumbnail on original image bytes
  * @return []byte
  */
-func (ia *ImageManipulation) Thumbnail() []byte {
+func (ia *ImageManipulation) Thumbnail() ([]byte, error) {
 	var imageThumbnail []byte
 
 	newImage, err := bimg.NewImage(ia.bytesImage).Thumbnail(ia.imageProcess.Width)

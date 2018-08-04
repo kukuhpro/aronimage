@@ -1,7 +1,7 @@
 package main
 
 import (
-	"aronimage/grpc"
+	agrpc "aronimage/grpc"
 	"log"
 	"net"
 	"qasirworker"
@@ -18,10 +18,10 @@ const (
 	MaxQueue  = 10000
 )
 
-var server *grpc.Server
+var server *agrpc.Server
 
 func init() {
-	server = grpc.NewServer()
+	server = agrpc.NewServer()
 	qasirworker.NewDispatcher(MaxWorker, MaxQueue).Run()
 }
 
