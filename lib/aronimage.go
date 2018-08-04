@@ -15,6 +15,11 @@ type Aronimage struct {
 	Path       ImagePathInterface
 }
 
+
+/** 
+ * Setup Storage connection to AWS S3
+ * @return void
+*/
 func (ai *Aronimage) setupStorage() {
 	var configs3 storage.ConfigS3
 	configs3.AccessKey = ai.Config.AWSKey

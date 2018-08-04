@@ -427,6 +427,12 @@
 			"revisionTime": "2018-06-22T23:02:44Z"
 		},
 		{
+			"checksumSHA1": "Z7UkM1SU60TW5Q2BgoY8Zgj63y4=",
+			"path": "gopkg.in/h2non/bimg.v1",
+			"revision": "02e621739c77c791d8c153f240b7a1f75b07816f",
+			"revisionTime": "2017-12-22T18:58:29Z"
+		},
+		{
 			"checksumSHA1": "iPVWL/tJzqqUOLRFO8I8UDJT0b8=",
 			"path": "launchpad.net/goamz/aws",
 			"revision": "49",

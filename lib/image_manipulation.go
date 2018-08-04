@@ -1,6 +1,6 @@
 package lib
 
-import "gopkg.in/h2non/bimg.v1"
+import bimg "gopkg.in/h2non/bimg.v1"
 
 type ImageManipulation struct {
 	bytesImage   []byte

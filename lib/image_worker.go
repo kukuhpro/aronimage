@@ -14,6 +14,11 @@ type ImageWorker struct {
 	ImageManipulation *ImageManipulation
 }
 
+/**
+ * Processing image handle on worker
+ * @param image ImageProcess
+ * @return error
+ */
 func (iw *ImageWorker) processingImage(image ImageProcess) error {
 	// set bytes original image
 	iw.ImageManipulation.SetBytes(iw.Image.Bytes)
@@ -34,11 +39,18 @@ func (iw *ImageWorker) processingImage(image ImageProcess) error {
 	prefixUploadPath := image.generatePrefixPath(iw.PrefixPath, iw.ModuleName)
 	if err == nil {
 		iw.Storage.Put(prefixUploadPath, iw.Image.Name, imagesBytes)
+		return err
 	} else {
 		log.Println(err)
+		return err
 	}
 }
 
+/**
+ * Interface for qasir worker
+ * @param void
+ * @return error
+ */
 func (iw *ImageWorker) Handle() error {
 	path := iw.Path.GetPath(iw.ModuleName)
 	for _, val := range path.ImageProcess {

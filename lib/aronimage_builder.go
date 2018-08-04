@@ -9,21 +9,40 @@ type AronImageBuilder struct {
 	PrefixPath string
 }
 
+/**
+ * Setup with base64 string
+ * @param base64 string
+ * @return *AronImageBuilder
+ */
 func (ab *AronImageBuilder) WithBase64(base64 string) *AronImageBuilder {
 	ab.Base64 = base64
 	return ab
 }
 
+/**
+ * Setup with filename image
+ * @param fileName string
+ * @return *AronImageBuilder
+ */
 func (ab *AronImageBuilder) WithFileName(fileName string) *AronImageBuilder {
 	ab.FileName = fileName
 	return ab
 }
 
+/**
+ * Setup with image file extension
+ * @param extension string
+ * @return *AronImageBuilder
+ */
 func (ab *AronImageBuilder) WithExtension(extension string) *AronImageBuilder {
 	ab.Extension = extension
 	return ab
 }
 
+/**
+ * Setup configuration for AWS S3
+ * @return Config
+ */
 func (ab *AronImageBuilder) setupConfig() Config {
 	var config Config
 
