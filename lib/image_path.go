@@ -11,16 +11,31 @@ type ImagePath struct {
 	ListOfPath map[string]Path
 }
 
+/**
+ * Loop Keys for functional function
+ * @param closure func(key string)
+ * @return void
+ */
 func (i *ImagePath) LoopKeys(closure func(key string)) {
 	for key, _ := range i.ListOfPath {
 		closure(key)
 	}
 }
 
+/**
+ * Get return path
+ * @param key string
+ * @return Path
+ */
 func (i *ImagePath) GetPath(key string) Path {
 	return i.ListOfPath[key]
 }
 
+/**
+ * Process read file from JSON file, to generate path upload image.
+ * @param fileName string
+ * @return void
+ */
 func (i *ImagePath) readFile(fileName string) {
 	raw, err := ioutil.ReadFile(i.PathFolder + "/" + fileName)
 
@@ -33,6 +48,10 @@ func (i *ImagePath) readFile(fileName string) {
 	i.ListOfPath[data.Name] = data
 }
 
+/**
+ * Handle to read all files on specific folder.
+ * @return void
+ */
 func (i *ImagePath) handleFiles() {
 	files, err := ioutil.ReadDir(i.PathFolder)
 
@@ -45,6 +64,10 @@ func (i *ImagePath) handleFiles() {
 	}
 }
 
+/**
+ * Constructor function for handle image path
+ * @return *ImagePath
+ */
 func NewImagePath() *ImagePath {
 	var imagePath ImagePath
 

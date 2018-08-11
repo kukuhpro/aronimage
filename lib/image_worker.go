@@ -38,6 +38,7 @@ func (iw *ImageWorker) processingImage(image ImageProcess) error {
 
 	prefixUploadPath := image.generatePrefixPath(iw.PrefixPath, iw.ModuleName)
 	if err == nil {
+		// put binnary result image processing to AWS S3
 		iw.Storage.Put(prefixUploadPath, iw.Image.Name, imagesBytes)
 		return err
 	} else {

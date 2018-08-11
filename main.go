@@ -20,11 +20,13 @@ const (
 
 var server *agrpc.Server
 
+// intiate function
 func init() {
 	server = agrpc.NewServer()
 	qasirworker.NewDispatcher(MaxWorker, MaxQueue).Run()
 }
 
+// main function
 func main() {
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
