@@ -2,6 +2,7 @@ package lib
 
 import (
 	"aronimage/storage"
+	"errors"
 	"qasirworker"
 )
 
@@ -33,17 +34,26 @@ func (ai *Aronimage) setupStorage() {
  * Upload Original Image on AWS S3 first
  * @return void
  */
-func (ai *Aronimage) uploadOriginal() {
-	ai.Storage.Put(ai.PrefixPath+"/"+ai.ModuleName+"/original", ai.Image.Name, ai.Image.Bytes)
+func (ai *Aronimage) uploadOriginal() error {
+	flag := ai.Storage.Put(ai.PrefixPath+"/"+ai.ModuleName+"/original", ai.Image.Name, ai.Image.Bytes)
+
+	if !flag {
+		return errors.New("Failed Upload original image.")
+	}
+	return nil
 }
 
 /**
  * Processing image for handle manipulation
  * @return void
  */
-func (ai *Aronimage) ProcessImage() {
+func (ai *Aronimage) ProcessImage() error {
 	// upload first for original image
-	ai.uploadOriginal()
+	err := ai.uploadOriginal()
+
+	if err != nil {
+		return err
+	}
 
 	// processing other image send to queue job worker.
 	payload := &ImageWorker{
@@ -56,6 +66,8 @@ func (ai *Aronimage) ProcessImage() {
 	}
 	work := qasirworker.Job{Executor: payload}
 	qasirworker.JobQueue <- work
+
+	return nil
 }
 
 func NewAronImage() *Aronimage {
