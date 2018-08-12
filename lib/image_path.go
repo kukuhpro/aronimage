@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
+	"os"
+	"strings"
 )
 
 type ImagePath struct {
@@ -71,8 +73,13 @@ func (i *ImagePath) handleFiles() {
 func NewImagePath() *ImagePath {
 	var imagePath ImagePath
 
+	pwd, _ := os.Getwd()
+
+	if strings.Contains(pwd, "/tests") {
+		pwd = strings.Replace(pwd, "/tests", "", -1)
+	}
 	imagePath.ListOfPath = map[string]Path{}
-	imagePath.PathFolder = "./path"
+	imagePath.PathFolder = pwd + "/path"
 	imagePath.handleFiles()
 
 	return &imagePath

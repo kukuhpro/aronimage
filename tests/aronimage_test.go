@@ -36,7 +36,5 @@ func TestSetupStorage(t *testing.T) {
 
 	aronImageTestSuite.aronImage.SetupStorage()
 
-	var storage storage.StorageInterface
-
-	assert.IsType(t, aronImageTestSuite.aronImage.Storage, storage)
+	assert.IsType(t, aronImageTestSuite.aronImage.Storage, &storage.Storage{})
 }
