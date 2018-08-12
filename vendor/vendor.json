@@ -43,6 +43,12 @@
 			"revisionTime": "2016-08-05T00:47:13Z"
 		},
 		{
+			"checksumSHA1": "HbOJxa+FsQ1TTsF+BkHAvzqqZv4=",
+			"path": "github.com/fatih/color",
+			"revision": "2d684516a8861da43017284349b7e303e809ac21",
+			"revisionTime": "2018-05-16T10:03:07Z"
+		},
+		{
 			"checksumSHA1": "uatMdzxEdLYx/RW5CKRoz6c8HI8=",
 			"path": "github.com/go-redis/cache",
 			"revision": "d647909f77d50d981ab74bb631c62745e0da70f6",
@@ -163,6 +169,20 @@
 			"revisionTime": "2017-03-11T05:25:31Z"
 		},
 		{
+			"checksumSHA1": "XEV3BI3nHA/rNa/tIgB7fVCrDww=",
+			"origin": "github.com/fatih/color/vendor/github.com/mattn/go-colorable",
+			"path": "github.com/mattn/go-colorable",
+			"revision": "2d684516a8861da43017284349b7e303e809ac21",
+			"revisionTime": "2018-05-16T10:03:07Z"
+		},
+		{
+			"checksumSHA1": "y/A5iuvwjytQE2CqVuphQRXR2nI=",
+			"origin": "github.com/fatih/color/vendor/github.com/mattn/go-isatty",
+			"path": "github.com/mattn/go-isatty",
+			"revision": "2d684516a8861da43017284349b7e303e809ac21",
+			"revisionTime": "2018-05-16T10:03:07Z"
+		},
+		{
 			"checksumSHA1": "yb9i0211F78QepCNBCAPfe3DnvQ=",
 			"path": "github.com/mostafah/mandrill",
 			"revision": "7506f60ce8401de4d1ee2584a0e632b5ce98377d",
@@ -233,6 +253,13 @@
 			"path": "golang.org/x/net/trace",
 			"revision": "afe8f62b1d6bbd81f31868121a50b06d8188e1f9",
 			"revisionTime": "2018-06-20T20:20:43Z"
+		},
+		{
+			"checksumSHA1": "CNHEeGnucEUlTHJrLS2kHtfNbws=",
+			"origin": "github.com/fatih/color/vendor/golang.org/x/sys/unix",
+			"path": "golang.org/x/sys/unix",
+			"revision": "2d684516a8861da43017284349b7e303e809ac21",
+			"revisionTime": "2018-05-16T10:03:07Z"
 		},
 		{
 			"checksumSHA1": "CbpjEkkOeh0fdM/V8xKDdI0AA88=",

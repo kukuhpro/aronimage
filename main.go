@@ -6,6 +6,7 @@ import (
 	"net"
 	"qasirworker"
 
+	"github.com/fatih/color"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
@@ -30,9 +31,9 @@ func init() {
 func main() {
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		color.Red("failed to listen: %v", err)
 	} else {
-		log.Println("Running GRPC Server on port : " + port)
+		color.Green("Running GRPC Server on port " + port)
 	}
 
 	s := grpc.NewServer()
