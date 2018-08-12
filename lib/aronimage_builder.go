@@ -66,7 +66,7 @@ func (ab *AronImageBuilder) Build(modulename string) *Aronimage {
 	aronImage.PrefixPath = ab.PrefixPath
 	aronImage.Config = ab.setupConfig()
 	aronImage.ModuleName = modulename
-	aronImage.setupStorage()
+	aronImage.SetupStorage()
 
 	return aronImage
 }

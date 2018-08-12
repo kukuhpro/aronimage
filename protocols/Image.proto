@@ -4,7 +4,6 @@ package protocols;
 
 service Image {
    rpc ProcessingImage (ProcessingImageRequest) returns (ProcessingImageResponse) {}
-   rpc SetupConfiguration(SetupConfigurationRequest) returns (SetupConfigurationResponse) {}
    rpc GetImageListPath (ImageListPathRequest) returns (ImageListPathResponse) {}
 }
 
@@ -34,7 +33,6 @@ message ListPath {
 message ProcessingImageResponse {
     int32 status = 1;
 }
-
 
 message SetupConfigurationRequest {
     GlobalConfig config = 1;

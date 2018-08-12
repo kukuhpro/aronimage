@@ -35,10 +35,6 @@ func (s *Server) ProcessingImage(ctx context.Context, req *pt.ProcessingImageReq
 	return &response, err
 }
 
-func (s *Server) SetupConfiguration(ctx context.Context, req *pt.SetupConfigurationRequest) (*pt.SetupConfigurationResponse, error) {
-	return nil, nil
-}
-
 func (s *Server) GetImageListPath(ctx context.Context, req *pt.ImageListPathRequest) (*pt.ImageListPathResponse, error) {
 	return nil, nil
 }

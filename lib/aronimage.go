@@ -20,7 +20,7 @@ type Aronimage struct {
  * Setup Storage connection to AWS S3
  * @return void
  */
-func (ai *Aronimage) setupStorage() {
+func (ai *Aronimage) SetupStorage() {
 	var configs3 storage.ConfigS3
 	configs3.AccessKey = ai.Config.AWSKey
 	configs3.AccessSecret = ai.Config.AWSSecret
@@ -34,7 +34,7 @@ func (ai *Aronimage) setupStorage() {
  * Upload Original Image on AWS S3 first
  * @return void
  */
-func (ai *Aronimage) uploadOriginal() error {
+func (ai *Aronimage) UploadOriginal() error {
 	flag := ai.Storage.Put(ai.PrefixPath+"/"+ai.ModuleName+"/original", ai.Image.Name, ai.Image.Bytes)
 
 	if !flag {
@@ -49,7 +49,7 @@ func (ai *Aronimage) uploadOriginal() error {
  */
 func (ai *Aronimage) ProcessImage() error {
 	// upload first for original image
-	err := ai.uploadOriginal()
+	err := ai.UploadOriginal()
 
 	if err != nil {
 		return err
