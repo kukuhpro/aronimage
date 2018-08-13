@@ -1,4 +1,4 @@
-languange: go
+language: go
 
 go:
   - "1.9"
