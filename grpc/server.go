@@ -36,7 +36,15 @@ func (s *Server) ProcessingImage(ctx context.Context, req *pt.ProcessingImageReq
 }
 
 func (s *Server) GetImageListPath(ctx context.Context, req *pt.ImageListPathRequest) (*pt.ImageListPathResponse, error) {
-	return nil, nil
+	var response pt.ImageListPathResponse
+
+	aron := s.Builder.WithFileName(req.Filename).Build(req.Name)
+
+	if req.Prefixpath != "" {
+		aron.PrefixPath = req.Prefixpath
+	}
+
+	return &response, nil
 }
 
 func NewServer() *Server {

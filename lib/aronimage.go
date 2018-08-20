@@ -70,6 +70,14 @@ func (ai *Aronimage) ProcessImage() error {
 	return nil
 }
 
+/**
+ * For getting image list path based on module name.
+ * @return [type] [variable] [description]
+ */
+func (ai *Aronimage) GetListImagePath() {
+
+}
+
 func NewAronImage() *Aronimage {
 	var aron Aronimage
 
