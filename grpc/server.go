@@ -35,6 +35,12 @@ func (s *Server) ProcessingImage(ctx context.Context, req *pt.ProcessingImageReq
 	return &response, err
 }
 
+/**
+ * Get Image list path, based on request ImageListPathRequest
+ * @param ctx context.Context
+ * @param req *pt.ImageListPathRequest
+ * @return *p.ImageListPathResponse | error
+ */
 func (s *Server) GetImageListPath(ctx context.Context, req *pt.ImageListPathRequest) (*pt.ImageListPathResponse, error) {
 	var response pt.ImageListPathResponse
 

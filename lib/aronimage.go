@@ -3,6 +3,7 @@ package lib
 import (
 	"aronimage/storage"
 	"errors"
+	"log"
 	"qasirworker"
 )
 
@@ -72,10 +73,14 @@ func (ai *Aronimage) ProcessImage() error {
 
 /**
  * For getting image list path based on module name.
- * @return [type] [variable] [description]
+ * @return void
  */
 func (ai *Aronimage) GetListImagePath() {
+	paths := ai.Path.GetPath(ai.ModuleName)
 
+	for _, process := range paths.ImageProcess {
+		log.Println(process)
+	}
 }
 
 func NewAronImage() *Aronimage {
