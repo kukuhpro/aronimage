@@ -22,12 +22,7 @@ message ImageListPathRequest {
 
 message ImageListPathResponse{
     string bucketname = 1;
-    repeated ListPath images = 2;
-}
-
-message ListPath {
-    string name  = 1;
-    string url = 2;
+    map<string, string> images = 2;
 }
 
 message ProcessingImageResponse {

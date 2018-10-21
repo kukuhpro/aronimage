@@ -3,7 +3,8 @@ package lib
 import "core"
 
 var (
-	Env = core.Env("./")
+	Env         = core.Env("./")
+	FormatS3Url = "https://s3.{regionname}.amazonaws.com/{bucketname}"
 )
 
 type ImagePathInterface interface {

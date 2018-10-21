@@ -50,6 +50,11 @@ func (s *Server) GetImageListPath(ctx context.Context, req *pt.ImageListPathRequ
 		aron.PrefixPath = req.Prefixpath
 	}
 
+	imageListPath := aron.GetListImagePath()
+
+	response.Images = imageListPath
+	response.Bucketname = aron.Config.AWSBucket
+
 	return &response, nil
 }
 

@@ -3,8 +3,8 @@ package lib
 import (
 	"aronimage/storage"
 	"errors"
-	"log"
 	"qasirworker"
+	"strings"
 )
 
 type Aronimage struct {
@@ -75,12 +75,31 @@ func (ai *Aronimage) ProcessImage() error {
  * For getting image list path based on module name.
  * @return void
  */
-func (ai *Aronimage) GetListImagePath() {
+func (ai *Aronimage) GetListImagePath() map[string]string {
 	paths := ai.Path.GetPath(ai.ModuleName)
 
+	var listPathImage map[string]string
+
 	for _, process := range paths.ImageProcess {
-		log.Println(process)
+		listPathImage[process.PrefixPath] = ai.GenerateS3BucketUrl(process)
 	}
+
+	return listPathImage
+}
+
+/**
+ * Generate URL S3 Bucket from format
+ * @param process ImageProcess
+ * @return string
+ */
+func (ai *Aronimage) GenerateS3BucketUrl(process ImageProcess) string {
+	var urlS3 string
+
+	urlS3 = FormatS3Url
+	urlS3 = strings.Replace(urlS3, "{region}", ai.Config.AWSRegion, -1)
+	urlS3 = strings.Replace(urlS3, "{bucketname}", ai.Config.AWSBucket, -1)
+
+	return urlS3 + "/" + process.generatePrefixPath(ai.PrefixPath, ai.ModuleName)
 }
 
 func NewAronImage() *Aronimage {
