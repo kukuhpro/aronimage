@@ -14,8 +14,9 @@ type ConsumerMessage struct {
 	Topic          string
 	Partition      int32
 	Offset         int64
-	Timestamp      time.Time // only set if kafka is version 0.10+, inner message timestamp
-	BlockTimestamp time.Time // only set if kafka is version 0.10+, outer (compressed) block timestamp
+	Timestamp      time.Time       // only set if kafka is version 0.10+, inner message timestamp
+	BlockTimestamp time.Time       // only set if kafka is version 0.10+, outer (compressed) block timestamp
+	Headers        []*RecordHeader // only set if kafka is version 0.11+
 }
 
 // ConsumerError is what is provided to the user when an error occurs.
@@ -309,6 +310,7 @@ type partitionConsumer struct {
 
 	trigger, dying chan none
 	responseResult error
+	closeOnce      sync.Once
 
 	fetchSize int32
 	offset    int64
@@ -411,7 +413,9 @@ func (child *partitionConsumer) AsyncClose() {
 	// the dispatcher to exit its loop, which removes it from the consumer then closes its 'messages' and
 	// 'errors' channel (alternatively, if the child is already at the dispatcher for some reason, that will
 	// also just close itself)
-	close(child.dying)
+	child.closeOnce.Do(func() {
+		close(child.dying)
+	})
 }
 
 func (child *partitionConsumer) Close() error {
@@ -440,40 +444,96 @@ func (child *partitionConsumer) HighWaterMarkOffset() int64 {
 
 func (child *partitionConsumer) responseFeeder() {
 	var msgs []*ConsumerMessage
-	expiryTimer := time.NewTimer(child.conf.Consumer.MaxProcessingTime)
-	expireTimedOut := false
+	expiryTicker := time.NewTicker(child.conf.Consumer.MaxProcessingTime)
+	firstAttempt := true
 
 feederLoop:
 	for response := range child.feeder {
 		msgs, child.responseResult = child.parseResponse(response)
 
 		for i, msg := range msgs {
-			if !expiryTimer.Stop() && !expireTimedOut {
-				// expiryTimer was expired; clear out the waiting msg
-				<-expiryTimer.C
-			}
-			expiryTimer.Reset(child.conf.Consumer.MaxProcessingTime)
-			expireTimedOut = false
-
+		messageSelect:
 			select {
 			case child.messages <- msg:
-			case <-expiryTimer.C:
-				expireTimedOut = true
-				child.responseResult = errTimedOut
-				child.broker.acks.Done()
-				for _, msg = range msgs[i:] {
-					child.messages <- msg
+				firstAttempt = true
+			case <-expiryTicker.C:
+				if !firstAttempt {
+					child.responseResult = errTimedOut
+					child.broker.acks.Done()
+					for _, msg = range msgs[i:] {
+						child.messages <- msg
+					}
+					child.broker.input <- child
+					continue feederLoop
+				} else {
+					// current message has not been sent, return to select
+					// statement
+					firstAttempt = false
+					goto messageSelect
 				}
-				child.broker.input <- child
-				continue feederLoop
 			}
 		}
 
 		child.broker.acks.Done()
 	}
 
+	expiryTicker.Stop()
 	close(child.messages)
 	close(child.errors)
+}
+
+func (child *partitionConsumer) parseMessages(msgSet *MessageSet) ([]*ConsumerMessage, error) {
+	var messages []*ConsumerMessage
+	for _, msgBlock := range msgSet.Messages {
+		for _, msg := range msgBlock.Messages() {
+			offset := msg.Offset
+			if msg.Msg.Version >= 1 {
+				baseOffset := msgBlock.Offset - msgBlock.Messages()[len(msgBlock.Messages())-1].Offset
+				offset += baseOffset
+			}
+			if offset < child.offset {
+				continue
+			}
+			messages = append(messages, &ConsumerMessage{
+				Topic:          child.topic,
+				Partition:      child.partition,
+				Key:            msg.Msg.Key,
+				Value:          msg.Msg.Value,
+				Offset:         offset,
+				Timestamp:      msg.Msg.Timestamp,
+				BlockTimestamp: msgBlock.Msg.Timestamp,
+			})
+			child.offset = offset + 1
+		}
+	}
+	if len(messages) == 0 {
+		return nil, ErrIncompleteResponse
+	}
+	return messages, nil
+}
+
+func (child *partitionConsumer) parseRecords(batch *RecordBatch) ([]*ConsumerMessage, error) {
+	var messages []*ConsumerMessage
+	for _, rec := range batch.Records {
+		offset := batch.FirstOffset + rec.OffsetDelta
+		if offset < child.offset {
+			continue
+		}
+		messages = append(messages, &ConsumerMessage{
+			Topic:     child.topic,
+			Partition: child.partition,
+			Key:       rec.Key,
+			Value:     rec.Value,
+			Offset:    offset,
+			Timestamp: batch.FirstTimestamp.Add(rec.TimestampDelta),
+			Headers:   rec.Headers,
+		})
+		child.offset = offset + 1
+	}
+	if len(messages) == 0 {
+		child.offset += 1
+	}
+	return messages, nil
 }
 
 func (child *partitionConsumer) parseResponse(response *FetchResponse) ([]*ConsumerMessage, error) {
@@ -486,10 +546,18 @@ func (child *partitionConsumer) parseResponse(response *FetchResponse) ([]*Consu
 		return nil, block.Err
 	}
 
-	if len(block.MsgSet.Messages) == 0 {
+	nRecs, err := block.numRecords()
+	if err != nil {
+		return nil, err
+	}
+	if nRecs == 0 {
+		partialTrailingMessage, err := block.isPartial()
+		if err != nil {
+			return nil, err
+		}
 		// We got no messages. If we got a trailing one then we need to ask for more data.
 		// Otherwise we just poll again and wait for one to be produced...
-		if block.MsgSet.PartialTrailingMessage {
+		if partialTrailingMessage {
 			if child.conf.Consumer.Fetch.Max > 0 && child.fetchSize == child.conf.Consumer.Fetch.Max {
 				// we can't ask for more data, we've hit the configured limit
 				child.sendError(ErrMessageTooLarge)
@@ -509,43 +577,31 @@ func (child *partitionConsumer) parseResponse(response *FetchResponse) ([]*Consu
 	child.fetchSize = child.conf.Consumer.Fetch.Default
 	atomic.StoreInt64(&child.highWaterMarkOffset, block.HighWaterMarkOffset)
 
-	incomplete := false
-	prelude := true
-	var messages []*ConsumerMessage
-	for _, msgBlock := range block.MsgSet.Messages {
-
-		for _, msg := range msgBlock.Messages() {
-			offset := msg.Offset
-			if msg.Msg.Version >= 1 {
-				baseOffset := msgBlock.Offset - msgBlock.Messages()[len(msgBlock.Messages())-1].Offset
-				offset += baseOffset
+	messages := []*ConsumerMessage{}
+	for _, records := range block.RecordsSet {
+		switch records.recordsType {
+		case legacyRecords:
+			messageSetMessages, err := child.parseMessages(records.MsgSet)
+			if err != nil {
+				return nil, err
 			}
-			if prelude && offset < child.offset {
+
+			messages = append(messages, messageSetMessages...)
+		case defaultRecords:
+			recordBatchMessages, err := child.parseRecords(records.RecordBatch)
+			if err != nil {
+				return nil, err
+			}
+			if control, err := records.isControl(); err != nil || control {
 				continue
 			}
-			prelude = false
 
-			if offset >= child.offset {
-				messages = append(messages, &ConsumerMessage{
-					Topic:          child.topic,
-					Partition:      child.partition,
-					Key:            msg.Msg.Key,
-					Value:          msg.Msg.Value,
-					Offset:         offset,
-					Timestamp:      msg.Msg.Timestamp,
-					BlockTimestamp: msgBlock.Msg.Timestamp,
-				})
-				child.offset = offset + 1
-			} else {
-				incomplete = true
-			}
+			messages = append(messages, recordBatchMessages...)
+		default:
+			return nil, fmt.Errorf("unknown records type: %v", records.recordsType)
 		}
-
 	}
 
-	if incomplete || len(messages) == 0 {
-		return nil, ErrIncompleteResponse
-	}
 	return messages, nil
 }
 
@@ -737,6 +793,10 @@ func (bc *brokerConsumer) fetchNewMessages() (*FetchResponse, error) {
 	if bc.consumer.conf.Version.IsAtLeast(V0_10_1_0) {
 		request.Version = 3
 		request.MaxBytes = MaxResponseSize
+	}
+	if bc.consumer.conf.Version.IsAtLeast(V0_11_0_0) {
+		request.Version = 4
+		request.Isolation = ReadUncommitted // We don't support yet transactions.
 	}
 
 	for child := range bc.subscriptions {
